@@ -1,0 +1,17 @@
+Thử thách Địa lý Thế giới
+Luật chơi: Người chơi sẽ đọc câu hỏi và chọn một trong bốn đáp án được cung cấp. Mỗi câu hỏi chỉ có một đáp án đúng duy nhất (được đánh số từ 1 đến 4).
+Quốc gia nào có diện tích lớn nhất thế giới? | Nga | Canada | Mỹ | Trung Quốc | 1
+Đỉnh núi nào cao nhất thế giới hiện nay? | K2 | Kangchenjunga | Everest | Lhotse | 3
+Sông nào có chiều dài lớn nhất thế giới? | Sông Mê Kông | Sông Nile | Sông Amazon | Sông Trường Giang | 2
+Hoang mạc nào lớn nhất thế giới? | Sahara | Gobi | Kalahari | Antarctica (Châu Nam Cực) | 4
+Quốc gia nào được mệnh danh là "Xứ sở hoa anh đào"? | Hàn Quốc | Nhật Bản | Trung Quốc | Thái Lan | 2
+Đảo nào là đảo lớn nhất thế giới? | Iceland | Madagascar | Greenland | Cuba | 3
+Hồ nước ngọt sâu nhất thế giới tên là gì? | Hồ Victoria | Hồ Baikal | Hồ Superior | Hồ Michigan | 2
+Kinh tuyến số 0 đi qua thành phố nào sau đây? | Paris | London | Madrid | Berlin | 2
+Quốc gia nào có đường bờ biển dài nhất thế giới? | Úc | Nga | Canada | Việt Nam | 3
+Thác nước nào rộng nhất thế giới? | Thác Niagara | Thác Victoria | Thác Iguazu | Thác Angel | 3
+Biển nào thấp nhất so với mực nước biển? | Biển Đen | Biển Đỏ | Biển Chết | Biển Caspian | 3
+Châu lục nào lạnh nhất hành tinh? | Châu Á | Châu Âu | Châu Mỹ | Châu Nam Cực | 4
+Thủ đô của nước Pháp là thành phố nào? | Rome | Berlin | Paris | Madrid | 3
+Quốc gia nào nằm ở cả hai châu lục Á và Âu? | Thổ Nhĩ Kỳ | Ấn Độ | Ai Cập | Thái Lan | 1
+Rừng nhiệt đới lớn nhất thế giới tên là gì? | Rừng Congo | Rừng Amazon | Rừng Taiga | Rừng U Minh | 2
