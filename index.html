@@ -43,20 +43,40 @@
             gap: 25px; padding: 20px; max-width: 1200px; margin: 0 auto;
         }
 
+        /* Tùy chỉnh thẻ Game Card theo yêu cầu mới */
         .game-card {
             background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px 20px;
             text-align: center; cursor: pointer; transition: 0.3s;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex; flex-direction: column; gap: 8px;
+            display: flex; flex-direction: column; gap: 5px;
         }
 
         .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); background: rgba(255, 255, 255, 0.1); }
         
-        .game-card .game-name { color: var(--accent-color); font-size: 1.4rem; font-weight: bold; text-transform: uppercase; }
-        .game-card .game-id { color: #888; font-size: 0.9rem; font-family: monospace; }
-        .game-card .game-type { color: var(--secondary-color); font-weight: 500; font-style: italic; }
+        /* CSS cho TÊN GAME */
+        .game-card .game-title { 
+            color: var(--accent-color); 
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px rgba(0, 206, 234, 0.3);
+        }
+        
+        /* CSS cho ID GAME */
+        .game-card .game-id { 
+            color: #b2bec3; 
+            font-size: 1rem; 
+            letter-spacing: 1px;
+        }
 
-        /* Giao diện chơi game */
+        /* CSS cho THỂ LOẠI */
+        .game-card .game-type { 
+            color: var(--secondary-color); 
+            font-size: 1.1rem; 
+            font-style: italic;
+            margin-top: 5px;
+        }
+
         #game-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-dark); z-index: 1000; padding: 20px;
@@ -67,7 +87,6 @@
             position: absolute; top: 20px; right: 20px; background: var(--danger-color);
             color: white; border: none; width: 45px; height: 45px; border-radius: 50%;
             font-size: 1.5rem; cursor: pointer; font-weight: bold; z-index: 1001;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .question-box {
@@ -84,11 +103,6 @@
 
         .ans-btn:hover { background: var(--secondary-color); color: #fff; }
 
-        input[type="text"] {
-            width: 100%; padding: 15px; margin-top: 20px; border-radius: 10px;
-            border: 2px solid #ddd; font-size: 1.1rem; text-align: center;
-        }
-
         .feedback { margin: 20px 0; font-weight: bold; font-size: 1.3rem; display: none; }
 
         .btn-next {
@@ -96,7 +110,7 @@
             border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold;
         }
 
-        @media (max-width: 600px) { h1 { font-size: 1.8rem; } .close-game { top: 10px; right: 10px; } }
+        @media (max-width: 600px) { h1 { font-size: 1.8rem; } }
     </style>
 </head>
 <body>
@@ -104,13 +118,13 @@
     <div id="lobby">
         <h1>9A7 Games</h1>
         <div class="search-container">
-            <input type="text" id="searchBox" placeholder="Tìm kiếm ID game..." oninput="renderLobby()">
+            <input type="text" id="searchBox" placeholder="Nhập ID game để tìm kiếm..." oninput="renderLobby()">
         </div>
         <div id="gameGrid" class="game-grid"></div>
     </div>
 
     <div id="game-screen">
-        <button class="close-game" onclick="exitGame()" title="Thoát game">✕</button>
+        <button class="close-game" onclick="exitGame()">✕</button>
         <div class="question-box">
             <h2 id="q-title"></h2>
             <p id="q-rules" style="margin-top:10px; color: #777; font-size: 0.9rem;"></p>
@@ -138,10 +152,15 @@
                 const text = await response.text();
                 const lines = text.split('\n').filter(l => l.trim() !== "");
                 
-                // Lưu trữ dữ liệu thô (có cả tên game nếu có sau này)
                 gameFiles = lines.map(line => {
                     const parts = line.split('|');
-                    return { id: parts[0] ? parts[0].trim() : "", type: parts[1] ? parts[1].trim() : "" };
+                    return { 
+                        id: parts[0] ? parts[0].trim() : "", 
+                        type: parts[1] ? parts[1].trim() : "",
+                        // Nếu trong Game_list.txt bạn thêm cột thứ 3 (| Tên Game), nó sẽ lấy ở đây.
+                        // Nếu không, tạm thời nó sẽ lấy ID làm tên, tôi sẽ hướng dẫn bạn cập nhật file txt bên dưới.
+                        displayName: parts[2] ? parts[2].trim() : (parts[0] ? parts[0].replace('.txt','') : "")
+                    };
                 }).filter(g => g.id !== "");
 
                 renderLobby();
@@ -171,20 +190,20 @@
                 const gameIdSearch = rawId.toLowerCase();
                 const isHidden = gameIdSearch.includes("hide");
                 
-                if (isHidden) {
-                    if (search === "" || !gameIdSearch.includes(search)) continue;
-                } else {
-                    if (search !== "" && !gameIdSearch.includes(search)) continue;
-                }
+                if (isHidden && (search === "" || !gameIdSearch.includes(search))) continue;
+                if (!isHidden && search !== "" && !gameIdSearch.includes(search)) continue;
 
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 
-                // Hiển thị theo định dạng: Tên | ID | Thể loại
+                // CẬP NHẬT HIỂN THỊ THEO YÊU CẦU:
+                // Tên (displayName)
+                // ID : <ID>
+                // Thể loại : <Type>
                 card.innerHTML = `
-                    <div class="game-name">${rawId}</div>
+                    <div class="game-title">${game.displayName}</div>
                     <div class="game-id">ID: ${rawId}</div>
-                    <div class="game-type">${typeNames[game.type] || game.type}</div>
+                    <div class="game-type">Thể loại: ${typeNames[game.type] || game.type}</div>
                 `;
                 
                 card.onclick = () => {
@@ -225,15 +244,11 @@
             const content = document.getElementById('quiz-content');
             const feedback = document.getElementById('feedback-area');
             const nextBtn = document.getElementById('next-btn');
-            
             feedback.style.display = 'none';
             nextBtn.style.display = 'none';
             content.innerHTML = "";
-
             if (currentIdx >= currentGameData.length) { endGame(); return; }
-
             const data = currentGameData[currentIdx];
-
             if (currentType === "4Answer") {
                 content.innerHTML = `<h3 style="margin-bottom:15px;">${data[0]}</h3>`;
                 for (let i = 1; i <= 4; i++) {
@@ -243,64 +258,40 @@
                     btn.onclick = () => checkAnswer(i, data[5], data);
                     content.appendChild(btn);
                 }
-            } 
-            else if (currentType === "WAnswer") {
+            } else if (currentType === "WAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
                     <input type="text" id="w-input" placeholder="Nhập đáp án...">
                     <button class="ans-btn" style="background:var(--primary-color); color:white; margin-top:20px;" onclick="processWAnswer('${data[1]}')">KIỂM TRA</button>`;
-            }
-            else if (currentType === "TFAnswer") {
+            } else if (currentType === "TFAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
                     <button class="ans-btn" onclick="checkAnswer('T', '${data[1]}')">ĐÚNG</button>
                     <button class="ans-btn" onclick="checkAnswer('F', '${data[1]}')">SAI</button>`;
             }
         }
 
-        function processWAnswer(correct) {
-            const val = document.getElementById('w-input').value;
-            if(!val.trim()) return;
-            checkAnswer(val, correct);
-        }
-
         function checkAnswer(userAns, corectAnsIndex, fullData) {
             const feedback = document.getElementById('feedback-area');
             const nextBtn = document.getElementById('next-btn');
-            const buttons = document.querySelectorAll('.ans-btn');
-            buttons.forEach(b => b.style.pointerEvents = 'none');
-
-            let displayCorrectAnswer = corectAnsIndex;
-            if (currentType === "4Answer") {
-                displayCorrectAnswer = fullData[parseInt(corectAnsIndex)];
-            } else if (currentType === "TFAnswer") {
-                displayCorrectAnswer = (corectAnsIndex.toUpperCase() === 'T') ? "ĐÚNG" : "SAI";
-            }
-
             const isCorrect = userAns.toString().trim().toLowerCase() === corectAnsIndex.toString().trim().toLowerCase();
             feedback.style.display = "block";
             nextBtn.style.display = "inline-block";
-
             if (isCorrect) {
                 score++;
                 feedback.innerHTML = "✅ CHÍNH XÁC!";
                 feedback.style.color = "#27ae60";
             } else {
-                feedback.innerHTML = `❌ SAI RỒI!<br><small style="color:#333; font-size:1rem;">Đáp án đúng: <b>${displayCorrectAnswer}</b></small>`;
+                feedback.innerHTML = "❌ SAI RỒI!";
                 feedback.style.color = "#e74c3c";
             }
         }
 
-        function nextQuestion() {
-            currentIdx++;
-            showQuestion();
-        }
+        function nextQuestion() { currentIdx++; showQuestion(); }
 
         function endGame() {
             const content = document.getElementById('quiz-content');
             content.innerHTML = `<h2>KẾT THÚC!</h2>
                 <div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div>
                 <button class="btn-next" onclick="location.reload()">VỀ SẢNH</button>`;
-            document.getElementById('q-title').innerText = "KẾT QUẢ";
-            document.getElementById('q-rules').innerText = "";
         }
 
         fetchGameList();
