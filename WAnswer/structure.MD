@@ -1,3 +1,7 @@
 <tên game>
 <luật chơi>
-<[nội dung câu hỏi] [đáp án T/F]>
+<[Nội dung câu hỏi] [câu trả lời đúng (ko quan trọng viết hoa hay thường]>
+
+
+
+cách nhau bởi dấu "|"
