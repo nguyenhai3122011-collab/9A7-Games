@@ -87,8 +87,10 @@
             background: #fff; cursor: pointer; font-size: 1.1rem; font-weight: 500; transition: 0.2s;
         }
 
-        .ans-btn:hover { background: var(--secondary-color); color: #fff; }
-        .feedback { margin: 20px 0; font-weight: bold; font-size: 1.3rem; display: none; }
+        .ans-btn:hover:not(:disabled) { background: var(--secondary-color); color: #fff; }
+        .ans-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .feedback { margin: 20px 0; font-weight: bold; font-size: 1.3rem; display: none; line-height: 1.5; }
         .btn-next { background: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold; }
     </style>
 </head>
@@ -97,7 +99,7 @@
     <div id="lobby">
         <h1>9A7 Games</h1>
         <div class="search-container">
-            <input type="text" id="searchBox" placeholder="Nhập ID game để tìm kiếm..." oninput="renderLobby()">
+            <input type="text" id="searchBox" placeholder="Nhập ID game hoặc tên để tìm..." oninput="renderLobby()">
         </div>
         <div id="gameGrid" class="game-grid"></div>
     </div>
@@ -136,7 +138,6 @@
                     return { id: parts[0]?.trim() || "", type: parts[1]?.trim() || "" };
                 }).filter(g => g.id !== "");
 
-                // Lấy tên thực tế từ dòng 1 của từng file txt
                 gameFiles = await Promise.all(rawGames.map(async (game) => {
                     try {
                         const res = await fetch(`./${game.type}/${game.id}`);
@@ -163,8 +164,6 @@
             for (let i = gameFiles.length - 1; i >= 0; i--) {
                 const game = gameFiles[i];
                 const rawId = game.id.replace('.txt','');
-                
-                // Tìm kiếm theo ID hoặc Tên Game
                 if (search !== "" && !rawId.toLowerCase().includes(search) && !game.displayName.toLowerCase().includes(search)) continue;
                 if (search === "" && rawId.toLowerCase().includes("hide")) continue;
 
@@ -175,7 +174,6 @@
                     <div class="game-id">ID: ${rawId}</div>
                     <div class="game-type">Thể loại: ${typeNames[game.type] || game.type}</div>
                 `;
-                
                 card.onclick = () => {
                     window.location.hash = "ID" + rawId;
                     loadGame(game.type, game.id);
@@ -189,25 +187,15 @@
                 const response = await fetch(`./${type}/${filename}`);
                 const text = await response.text();
                 const lines = text.split('\n').filter(l => l.trim() !== "");
-                
                 document.getElementById('q-title').innerText = lines[0];
                 document.getElementById('q-rules').innerText = "Luật chơi: " + lines[1];
                 currentType = type;
                 currentGameData = lines.slice(2).map(line => line.split('|'));
-                
                 currentIdx = 0; score = 0;
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
                 showQuestion();
             } catch (e) { alert("Lỗi tải file game!"); exitGame(); }
-        }
-
-        function exitGame() {
-            if (confirm("Bạn có chắc muốn thoát?")) {
-                document.getElementById('game-screen').style.display = 'none';
-                document.getElementById('lobby').style.display = 'block';
-                window.location.hash = "";
-            }
         }
 
         function showQuestion() {
@@ -217,8 +205,11 @@
             feedback.style.display = 'none';
             nextBtn.style.display = 'none';
             content.innerHTML = "";
+
             if (currentIdx >= currentGameData.length) { endGame(); return; }
+            
             const data = currentGameData[currentIdx];
+
             if (currentType === "4Answer") {
                 content.innerHTML = `<h3 style="margin-bottom:15px;">${data[0]}</h3>`;
                 for (let i = 1; i <= 4; i++) {
@@ -230,32 +221,59 @@
                 }
             } else if (currentType === "WAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
-                    <input type="text" id="w-input" placeholder="Nhập đáp án...">
-                    <button class="ans-btn" style="background:var(--primary-color); color:white; margin-top:20px;" onclick="processWAnswer('${data[1]}')">KIỂM TRA</button>`;
+                    <input type="text" id="w-input" placeholder="Nhập đáp án..." style="width:100%; padding:10px; margin:15px 0; border-radius:10px; border:1px solid #ccc;">
+                    <button id="w-check-btn" class="ans-btn" style="background:var(--primary-color); color:white;" onclick="checkAnswer(document.getElementById('w-input').value, '${data[1]}', data)">KIỂM TRA</button>`;
             } else if (currentType === "TFAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
-                    <button class="ans-btn" onclick="checkAnswer('T', '${data[1]}')">ĐÚNG</button>
-                    <button class="ans-btn" onclick="checkAnswer('F', '${data[1]}')">SAI</button>`;
+                    <button class="ans-btn" onclick="checkAnswer('T', '${data[1]}', data)">ĐÚNG</button>
+                    <button class="ans-btn" onclick="checkAnswer('F', '${data[1]}', data)">SAI</button>`;
             }
         }
 
-        function checkAnswer(userAns, corectAnsIndex, fullData) {
+        function checkAnswer(userAns, corectAnsRaw, fullData) {
             const feedback = document.getElementById('feedback-area');
             const nextBtn = document.getElementById('next-btn');
-            const isCorrect = userAns.toString().trim().toLowerCase() === corectAnsIndex.toString().trim().toLowerCase();
+            const buttons = document.querySelectorAll('.ans-btn');
+            const input = document.getElementById('w-input');
+
+            // 1. Khóa không cho chọn lại
+            buttons.forEach(btn => btn.disabled = true);
+            if(input) input.disabled = true;
+
+            // 2. Kiểm tra đúng sai
+            const isCorrect = userAns.toString().trim().toLowerCase() === corectAnsRaw.toString().trim().toLowerCase();
+            
             feedback.style.display = "block";
             nextBtn.style.display = "inline-block";
+
             if (isCorrect) {
                 score++;
                 feedback.innerHTML = "✅ CHÍNH XÁC!";
                 feedback.style.color = "#27ae60";
             } else {
-                feedback.innerHTML = "❌ SAI RỒI!";
+                // 3. Hiển thị tên đáp án thay vì số thứ tự
+                let correctText = corectAnsRaw;
+                if (currentType === "4Answer") {
+                    const idx = parseInt(corectAnsRaw);
+                    correctText = fullData[idx] || corectAnsRaw;
+                } else if (currentType === "TFAnswer") {
+                    correctText = (corectAnsRaw === 'T') ? "ĐÚNG" : "SAI";
+                }
+
+                feedback.innerHTML = `❌ SAI RỒI!<br><span style="font-size:1rem; font-weight:normal; color:#333;">Đáp án đúng là: <b>${correctText}</b></span>`;
                 feedback.style.color = "#e74c3c";
             }
         }
 
         function nextQuestion() { currentIdx++; showQuestion(); }
+
+        function exitGame() {
+            if (confirm("Bạn có chắc muốn thoát?")) {
+                document.getElementById('game-screen').style.display = 'none';
+                document.getElementById('lobby').style.display = 'block';
+                window.location.hash = "";
+            }
+        }
 
         function endGame() {
             const content = document.getElementById('quiz-content');
