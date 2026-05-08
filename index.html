@@ -60,7 +60,7 @@
             text-shadow: 0 0 5px rgba(0, 206, 234, 0.3);
         }
         
-        .game-card .game-id { color: #b2bec3; font-size: 1rem; }
+        .game-card .game-id { color: #b2bec3; font-size: 0.9rem; }
         .game-card .game-type { color: var(--secondary-color); font-size: 1.1rem; font-style: italic; margin-top: 5px; }
 
         #game-screen {
@@ -92,6 +92,11 @@
 
         .feedback { margin: 20px 0; font-weight: bold; font-size: 1.3rem; display: none; line-height: 1.5; }
         .btn-next { background: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold; }
+        
+        #w-input {
+            width: 100%; padding: 15px; margin: 15px 0; border-radius: 10px; 
+            border: 2px solid #ddd; font-size: 1.1rem; text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -184,18 +189,25 @@
 
         async function loadGame(type, filename) {
             try {
-                const response = await fetch(`./${type}/${filename}`);
+                const response = await fetch(`./${type}/${filename}?t=` + new Date().getTime());
                 const text = await response.text();
-                const lines = text.split('\n').filter(l => l.trim() !== "");
+                // Chuẩn hóa xóa ký tự \r ẩn
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l !== "");
+                
                 document.getElementById('q-title').innerText = lines[0];
                 document.getElementById('q-rules').innerText = "Luật chơi: " + lines[1];
                 currentType = type;
-                currentGameData = lines.slice(2).map(line => line.split('|'));
+                
+                currentGameData = lines.slice(2).map(line => line.split('|').map(item => item.trim()));
+                
                 currentIdx = 0; score = 0;
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
                 showQuestion();
-            } catch (e) { alert("Lỗi tải file game!"); exitGame(); }
+            } catch (e) { 
+                alert("Lỗi tải file game!"); 
+                exitGame(); 
+            }
         }
 
         function showQuestion() {
@@ -221,27 +233,40 @@
                 }
             } else if (currentType === "WAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
-                    <input type="text" id="w-input" placeholder="Nhập đáp án..." style="width:100%; padding:10px; margin:15px 0; border-radius:10px; border:1px solid #ccc;">
-                    <button id="w-check-btn" class="ans-btn" style="background:var(--primary-color); color:white;" onclick="checkAnswer(document.getElementById('w-input').value, '${data[1]}', data)">KIỂM TRA</button>`;
+                    <input type="text" id="w-input" placeholder="Nhập đáp án của bạn..." autocomplete="off">
+                    <button id="w-check-btn" class="ans-btn" style="background:var(--primary-color); color:white;" onclick="submitWAnswer()">KIỂM TRA</button>`;
+                
+                // Tự động focus vào ô nhập
+                setTimeout(() => document.getElementById('w-input').focus(), 100);
             } else if (currentType === "TFAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
-                    <button class="ans-btn" onclick="checkAnswer('T', '${data[1]}', data)">ĐÚNG</button>
-                    <button class="ans-btn" onclick="checkAnswer('F', '${data[1]}', data)">SAI</button>`;
+                    <div style="margin-top:15px;">
+                        <button class="ans-btn" onclick="checkAnswer('T', '${data[1]}', data)">ĐÚNG</button>
+                        <button class="ans-btn" onclick="checkAnswer('F', '${data[1]}', data)">SAI</button>
+                    </div>`;
             }
         }
 
-        function checkAnswer(userAns, corectAnsRaw, fullData) {
+        function submitWAnswer() {
+            const val = document.getElementById('w-input').value;
+            const data = currentGameData[currentIdx];
+            checkAnswer(val, data[1], data);
+        }
+
+        function checkAnswer(userAns, correctAnsRaw, fullData) {
             const feedback = document.getElementById('feedback-area');
             const nextBtn = document.getElementById('next-btn');
             const buttons = document.querySelectorAll('.ans-btn');
             const input = document.getElementById('w-input');
 
-            // 1. Khóa không cho chọn lại
+            // 1. Khóa tương tác
             buttons.forEach(btn => btn.disabled = true);
             if(input) input.disabled = true;
 
-            // 2. Kiểm tra đúng sai
-            const isCorrect = userAns.toString().trim().toLowerCase() === corectAnsRaw.toString().trim().toLowerCase();
+            // 2. Chuẩn hóa để so sánh
+            const uAns = userAns.toString().trim().toLowerCase();
+            const cAns = correctAnsRaw.toString().trim().toLowerCase();
+            const isCorrect = uAns === cAns;
             
             feedback.style.display = "block";
             nextBtn.style.display = "inline-block";
@@ -251,15 +276,13 @@
                 feedback.innerHTML = "✅ CHÍNH XÁC!";
                 feedback.style.color = "#27ae60";
             } else {
-                // 3. Hiển thị tên đáp án thay vì số thứ tự
-                let correctText = corectAnsRaw;
+                let correctText = correctAnsRaw;
                 if (currentType === "4Answer") {
-                    const idx = parseInt(corectAnsRaw);
-                    correctText = fullData[idx] || corectAnsRaw;
+                    const idx = parseInt(correctAnsRaw);
+                    correctText = fullData[idx] || correctAnsRaw;
                 } else if (currentType === "TFAnswer") {
-                    correctText = (corectAnsRaw === 'T') ? "ĐÚNG" : "SAI";
+                    correctText = (correctAnsRaw.toUpperCase() === 'T') ? "ĐÚNG" : "SAI";
                 }
-
                 feedback.innerHTML = `❌ SAI RỒI!<br><span style="font-size:1rem; font-weight:normal; color:#333;">Đáp án đúng là: <b>${correctText}</b></span>`;
                 feedback.style.color = "#e74c3c";
             }
