@@ -43,7 +43,6 @@
             gap: 25px; padding: 20px; max-width: 1200px; margin: 0 auto;
         }
 
-        /* Tùy chỉnh thẻ Game Card theo yêu cầu mới */
         .game-card {
             background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px 20px;
             text-align: center; cursor: pointer; transition: 0.3s;
@@ -53,7 +52,6 @@
 
         .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); background: rgba(255, 255, 255, 0.1); }
         
-        /* CSS cho TÊN GAME */
         .game-card .game-title { 
             color: var(--accent-color); 
             font-size: 1.6rem; 
@@ -62,20 +60,8 @@
             text-shadow: 0 0 5px rgba(0, 206, 234, 0.3);
         }
         
-        /* CSS cho ID GAME */
-        .game-card .game-id { 
-            color: #b2bec3; 
-            font-size: 1rem; 
-            letter-spacing: 1px;
-        }
-
-        /* CSS cho THỂ LOẠI */
-        .game-card .game-type { 
-            color: var(--secondary-color); 
-            font-size: 1.1rem; 
-            font-style: italic;
-            margin-top: 5px;
-        }
+        .game-card .game-id { color: #b2bec3; font-size: 1rem; }
+        .game-card .game-type { color: var(--secondary-color); font-size: 1.1rem; font-style: italic; margin-top: 5px; }
 
         #game-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -102,15 +88,8 @@
         }
 
         .ans-btn:hover { background: var(--secondary-color); color: #fff; }
-
         .feedback { margin: 20px 0; font-weight: bold; font-size: 1.3rem; display: none; }
-
-        .btn-next {
-            background: #27ae60; color: white; border: none; padding: 15px 40px;
-            border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold;
-        }
-
-        @media (max-width: 600px) { h1 { font-size: 1.8rem; } }
+        .btn-next { background: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -152,30 +131,27 @@
                 const text = await response.text();
                 const lines = text.split('\n').filter(l => l.trim() !== "");
                 
-                gameFiles = lines.map(line => {
+                const rawGames = lines.map(line => {
                     const parts = line.split('|');
-                    return { 
-                        id: parts[0] ? parts[0].trim() : "", 
-                        type: parts[1] ? parts[1].trim() : "",
-                        // Nếu trong Game_list.txt bạn thêm cột thứ 3 (| Tên Game), nó sẽ lấy ở đây.
-                        // Nếu không, tạm thời nó sẽ lấy ID làm tên, tôi sẽ hướng dẫn bạn cập nhật file txt bên dưới.
-                        displayName: parts[2] ? parts[2].trim() : (parts[0] ? parts[0].replace('.txt','') : "")
-                    };
+                    return { id: parts[0]?.trim() || "", type: parts[1]?.trim() || "" };
                 }).filter(g => g.id !== "");
+
+                // Lấy tên thực tế từ dòng 1 của từng file txt
+                gameFiles = await Promise.all(rawGames.map(async (game) => {
+                    try {
+                        const res = await fetch(`./${game.type}/${game.id}`);
+                        const content = await res.text();
+                        const firstLine = content.split('\n')[0].trim();
+                        return { ...game, displayName: firstLine || game.id.replace('.txt','') };
+                    } catch (e) {
+                        return { ...game, displayName: game.id.replace('.txt','') };
+                    }
+                }));
 
                 renderLobby();
                 checkDeepLink();
             } catch (e) {
                 document.getElementById('gameGrid').innerHTML = "<p>Lỗi tải danh sách game.</p>";
-            }
-        }
-
-        function checkDeepLink() {
-            const hash = window.location.hash;
-            if (hash && hash.startsWith("#ID")) {
-                const targetId = hash.substring(3);
-                const game = gameFiles.find(g => g.id.replace('.txt','') === targetId);
-                if (game) loadGame(game.type, game.id);
             }
         }
 
@@ -187,19 +163,13 @@
             for (let i = gameFiles.length - 1; i >= 0; i--) {
                 const game = gameFiles[i];
                 const rawId = game.id.replace('.txt','');
-                const gameIdSearch = rawId.toLowerCase();
-                const isHidden = gameIdSearch.includes("hide");
                 
-                if (isHidden && (search === "" || !gameIdSearch.includes(search))) continue;
-                if (!isHidden && search !== "" && !gameIdSearch.includes(search)) continue;
+                // Tìm kiếm theo ID hoặc Tên Game
+                if (search !== "" && !rawId.toLowerCase().includes(search) && !game.displayName.toLowerCase().includes(search)) continue;
+                if (search === "" && rawId.toLowerCase().includes("hide")) continue;
 
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                
-                // CẬP NHẬT HIỂN THỊ THEO YÊU CẦU:
-                // Tên (displayName)
-                // ID : <ID>
-                // Thể loại : <Type>
                 card.innerHTML = `
                     <div class="game-title">${game.displayName}</div>
                     <div class="game-id">ID: ${rawId}</div>
@@ -233,7 +203,7 @@
         }
 
         function exitGame() {
-            if (confirm("Bạn có chắc muốn thoát trò chơi hiện tại?")) {
+            if (confirm("Bạn có chắc muốn thoát?")) {
                 document.getElementById('game-screen').style.display = 'none';
                 document.getElementById('lobby').style.display = 'block';
                 window.location.hash = "";
@@ -292,6 +262,15 @@
             content.innerHTML = `<h2>KẾT THÚC!</h2>
                 <div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div>
                 <button class="btn-next" onclick="location.reload()">VỀ SẢNH</button>`;
+        }
+
+        function checkDeepLink() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith("#ID")) {
+                const targetId = hash.substring(3);
+                const game = gameFiles.find(g => g.id.replace('.txt','') === targetId);
+                if (game) loadGame(game.type, game.id);
+            }
         }
 
         fetchGameList();
