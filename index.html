@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>9A7 Games - Hệ thống trò chơi</title>
+    <title>9A7's Game</title>
     <style>
         :root {
             --primary-color: #6c5ce7;
@@ -52,7 +52,7 @@
 <body>
 
     <div id="lobby">
-        <h1>9A7 Games</h1>
+        <h1>Fun Games</h1>
         
         <div class="search-area">
             <input type="text" id="searchBox" placeholder="Tìm kiếm game công khai..." oninput="renderLobby()">
@@ -65,7 +65,7 @@
     <div id="quickModal" class="modal-overlay" onclick="closeQuickPlay(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="modal-close" onclick="closeQuickPlay()">&times;</span>
-            <h2 style="color: var(--accent-color);">NHẬP ID GAME</h2>
+            <h2 style="color: var(--accent-color);">NHẬP ID</h2>
             <p style="font-size: 0.9rem; color: #ccc; margin-top: 5px;">Hệ thống sẽ tự quét cả ID ẩn</p>
             <input type="text" id="quickInput" maxlength="12" placeholder="Nhập mã số..." oninput="handleQuickInput()">
             <div id="quickStatus" style="margin-top: 15px; color: var(--danger-color); min-height: 20px;"></div>
@@ -267,7 +267,7 @@
 
         function nextQuestion() { currentIdx++; showQuestion(); }
         function endGame() { 
-            document.getElementById('quiz-content').innerHTML = `<h2>HOÀN THÀNH!</h2><div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div><button class="btn-next" onclick="location.reload()">QUAY LẠI SẢNH</button>`; 
+            document.getElementById('quiz-content').innerHTML = `<h2>HOÀN THÀNH!</h2><div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div><button class="btn-next" onclick="location.reload()">CHƠI LẠI</button>`; 
         }
         
         fetchGameList();
