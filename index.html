@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>9A7 Games - Thế giới trò chơi tri thức</title>
+    <title>9A7 Games - Hệ thống trò chơi</title>
     <style>
         :root {
             --primary-color: #6c5ce7;
@@ -71,8 +71,8 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="modal-close" onclick="closeQuickPlay()">&times;</span>
             <h2 style="color: var(--accent-color);">NHẬP ID GAME</h2>
-            <p style="font-size: 0.9rem; color: #ccc; margin-top: 5px;">Vào chơi ngay lập tức sau 8 ký tự</p>
-            <input type="text" id="quickInput" maxlength="12" placeholder="Ví dụ: 12345678" oninput="handleQuickInput()">
+            <p style="font-size: 0.9rem; color: #ccc; margin-top: 5px;">Hệ thống sẽ tự quét cả ID ẩn</p>
+            <input type="text" id="quickInput" maxlength="12" placeholder="Nhập mã số..." oninput="handleQuickInput()">
             <div id="quickStatus" style="margin-top: 15px; color: var(--danger-color); min-height: 20px;"></div>
         </div>
     </div>
@@ -100,7 +100,6 @@
         let currentType = "";
         const typeNames = { "4Answer": "Chọn đáp án", "TFAnswer": "Đúng sai", "WAnswer": "Điền đáp án" };
 
-        // QUẢN LÝ MODAL THAM GIA NHANH
         function openQuickPlay() {
             document.getElementById('quickModal').style.display = 'flex';
             document.getElementById('quickInput').value = "";
@@ -108,28 +107,33 @@
             setTimeout(() => document.getElementById('quickInput').focus(), 100);
         }
 
-        function closeQuickPlay(e) {
+        function closeQuickPlay() {
             document.getElementById('quickModal').style.display = 'none';
         }
 
         function handleQuickInput() {
-            const val = document.getElementById('quickInput').value.trim();
+            const val = document.getElementById('quickInput').value.trim().toLowerCase();
             const status = document.getElementById('quickStatus');
             
-            // Nếu đủ 8 ký tự trở lên (để bao quát cả ID số và HIDE...)
             if (val.length >= 8) {
-                // Tìm kiếm game trong danh sách (không phân biệt hide hay không)
-                const game = gameFiles.find(g => g.id.replace('.txt','').toLowerCase() === val.toLowerCase());
+                // 1. Tìm chính xác ID nhập (cho game công khai)
+                let game = gameFiles.find(g => g.id.replace('.txt','').toLowerCase() === val);
+                
+                // 2. Nếu không thấy, tự động thêm "hide" vào trước để tìm (cho game ẩn)
+                if (!game) {
+                    const hideVal = "hide" + val;
+                    game = gameFiles.find(g => g.id.replace('.txt','').toLowerCase() === hideVal);
+                }
                 
                 if (game) {
-                    status.innerText = "Đang vào game...";
+                    status.innerText = "Đang kết nối...";
                     status.style.color = "var(--success-color)";
                     setTimeout(() => {
                         closeQuickPlay();
                         loadGame(game.type, game.id);
-                    }, 500);
+                    }, 600);
                 } else {
-                    status.innerText = "Không tìm thấy ID này!";
+                    status.innerText = "Mã ID không hợp lệ!";
                     status.style.color = "var(--danger-color)";
                 }
             } else {
@@ -137,7 +141,6 @@
             }
         }
 
-        // TẢI DANH SÁCH GAME
         async function fetchGameList() {
             try {
                 const response = await fetch('./Game_list.txt?t=' + new Date().getTime());
@@ -157,11 +160,9 @@
                     } catch (e) { return { ...game, displayName: game.id.replace('.txt','') }; }
                 }));
                 renderLobby();
-                checkDeepLink();
-            } catch (e) { console.error("Lỗi tải danh sách:", e); }
+            } catch (e) { console.error("Lỗi:", e); }
         }
 
-        // HIỂN THỊ SẢNH (LOBBY)
         function renderLobby() {
             const grid = document.getElementById('gameGrid');
             const searchMain = document.getElementById('searchBox').value.trim().toLowerCase();
@@ -172,9 +173,9 @@
                 const rawId = game.id.replace('.txt','');
                 const isHide = rawId.toLowerCase().includes("hide");
 
-                // Mặc định: Chỉ hiện game CÔNG KHAI
+                // CHỈ HIỆN GAME CÔNG KHAI Ở SẢNH
                 if (!isHide) {
-                    if (searchMain === "" || game.displayName.toLowerCase().includes(searchMain) || rawId.includes(searchMain)) {
+                    if (searchMain === "" || game.displayName.toLowerCase().includes(searchMain) || rawId.toLowerCase().includes(searchMain)) {
                         const card = document.createElement('div');
                         card.className = 'game-card';
                         card.innerHTML = `<div class="game-title">${game.displayName}</div><div class="game-id">ID: ${rawId}</div><div class="game-type">${typeNames[game.type] || game.type}</div>`;
@@ -185,7 +186,6 @@
             }
         }
 
-        // LOGIC CHƠI GAME (Giữ nguyên từ bản trước)
         async function loadGame(type, filename) {
             try {
                 const response = await fetch(`./${type}/${filename}?t=` + new Date().getTime());
@@ -199,7 +199,7 @@
                 document.getElementById('lobby').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'flex';
                 showQuestion();
-            } catch (e) { alert("Lỗi tải file!"); exitGame(); }
+            } catch (e) { alert("Lỗi tải trò chơi!"); exitGame(); }
         }
 
         function showQuestion() {
@@ -220,7 +220,7 @@
                     content.appendChild(btn);
                 }
             } else if (currentType === "WAnswer") {
-                content.innerHTML = `<h3>${data[0]}</h3><input type="text" id="w-input" placeholder="Nhập đáp án..." autocomplete="off"><button class="ans-btn" style="background:var(--primary-color); color:white;" onclick="checkAnswer(document.getElementById('w-input').value, '${data[1]}', null)">KIỂM TRA</button>`;
+                content.innerHTML = `<h3>${data[0]}</h3><input type="text" id="w-input" placeholder="Nhập đáp án..." autocomplete="off"><button class="ans-btn" style="background:var(--primary-color); color:white;" onclick="checkAnswer(document.getElementById('w-input').value, '${data[1]}', null)">GỬI ĐÁP ÁN</button>`;
                 setTimeout(() => document.getElementById('w-input').focus(), 100);
             } else if (currentType === "TFAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3><div style="margin-top:15px; display:flex; gap:10px;"><button class="ans-btn" onclick="checkAnswer('T', '${data[1]}', null)">ĐÚNG</button><button class="ans-btn" onclick="checkAnswer('F', '${data[1]}', null)">SAI</button></div>`;
@@ -250,9 +250,8 @@
         }
 
         function nextQuestion() { currentIdx++; showQuestion(); }
-        function exitGame() { if (confirm("Bạn có chắc muốn thoát?")) { document.getElementById('game-screen').style.display = 'none'; document.getElementById('lobby').style.display = 'block'; window.location.hash = ""; } }
-        function endGame() { document.getElementById('quiz-content').innerHTML = `<h2>KẾT THÚC!</h2><div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div><button class="btn-next" onclick="location.reload()">VỀ SẢNH</button>`; }
-        function checkDeepLink() { const hash = window.location.hash; if (hash && hash.startsWith("#ID")) { const targetId = hash.substring(3); const game = gameFiles.find(g => g.id.replace('.txt','') === targetId); if (game) loadGame(game.type, game.id); } }
+        function exitGame() { if (confirm("Thoát trò chơi này?")) { document.getElementById('game-screen').style.display = 'none'; document.getElementById('lobby').style.display = 'block'; } }
+        function endGame() { document.getElementById('quiz-content').innerHTML = `<h2>HOÀN THÀNH!</h2><div style="font-size: 3.5rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div><button class="btn-next" onclick="location.reload()">QUAY LẠI SẢNH</button>`; }
         
         fetchGameList();
     </script>
