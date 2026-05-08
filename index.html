@@ -193,45 +193,58 @@
             <p id="q-rules" style="font-style: italic; margin-bottom: 20px; color: #666;"></p>
             <hr>
             <div id="quiz-content" style="margin-top: 20px;">
-                <!-- Nội dung câu hỏi sẽ hiện ở đây -->
-            </div>
+                </div>
             <div id="feedback-area" class="feedback"></div>
             <button id="next-btn" class="btn-next" style="display: none;" onclick="nextQuestion()">Tiếp tục</button>
         </div>
     </div>
 
     <script>
-        // DANH SÁCH FILE CỦA BẠN (Bạn hãy thêm tên file vào đây)
-        // Ví dụ: { id: "12345678.txt", type: "4Answer" }
-        const gameFiles = [
-            { id: "10000001.txt", type: "4Answer" },
-            { id: "HIDE20000002.txt", type: "WAnswer" },
-            { id: "30000003.txt", type: "TFAnswer" }
-        ];
-
+        let gameFiles = []; 
         let currentGameData = [];
         let currentIdx = 0;
         let score = 0;
         let currentType = "";
 
-        // 1. Render Sảnh chờ
-        async function renderLobby() {
+        // 1. Tải danh sách game từ Game_list.txt
+        async function fetchGameList() {
+            try {
+                // Thêm tham số thời gian để tránh trình duyệt lưu cache file cũ
+                const response = await fetch('./Game_list.txt?t=' + new Date().getTime());
+                const text = await response.text();
+                const lines = text.split('\n').filter(l => l.trim() !== "");
+                
+                gameFiles = lines.map(line => {
+                    const parts = line.split('|');
+                    return { 
+                        id: parts[0] ? parts[0].trim() : "", 
+                        type: parts[1] ? parts[1].trim() : "" 
+                    };
+                }).filter(g => g.id !== "");
+
+                renderLobby();
+            } catch (e) {
+                document.getElementById('gameGrid').innerHTML = "<p style='text-align:center;'>Chưa có dữ liệu game. Vui lòng kiểm tra file Game_list.txt</p>";
+            }
+        }
+
+        // 2. Hiển thị danh sách game ra màn hình
+        function renderLobby() {
             const grid = document.getElementById('gameGrid');
-            const search = document.getElementById('searchBox').value.trim();
+            const search = document.getElementById('searchBox').value.trim().toLowerCase();
             grid.innerHTML = "";
 
-            // Duyệt ngược để hiện mới nhất trước
+            // Duyệt ngược để game mới nhất (cuối file) hiện lên đầu
             for (let i = gameFiles.length - 1; i >= 0; i--) {
                 const game = gameFiles[i];
-                const isHidden = game.id.includes("HIDE");
+                const gameId = game.id.toLowerCase();
+                const isHidden = gameId.includes("hide");
                 
-                // Nếu là HIDE, chỉ hiện khi search đúng ID (bao gồm cả chữ HIDE hoặc chỉ ID)
-                if (isHidden && !game.id.includes(search) || (search === "" && isHidden)) {
-                    continue;
-                }
-                
-                if (!isHidden && search !== "" && !game.id.includes(search)) {
-                    continue;
+                // Logic ẩn/hiện: Nếu là HIDE thì chỉ hiện khi tìm kiếm khớp ID
+                if (isHidden) {
+                    if (search === "" || !gameId.includes(search)) continue;
+                } else {
+                    if (search !== "" && !gameId.includes(search)) continue;
                 }
 
                 const card = document.createElement('div');
@@ -242,10 +255,11 @@
             }
         }
 
-        // 2. Tải dữ liệu Game
+        // 3. Tải nội dung của một game cụ thể
         async function loadGame(type, filename) {
             try {
                 const response = await fetch(`./${type}/${filename}`);
+                if (!response.ok) throw new Error();
                 const text = await response.text();
                 const lines = text.split('\n').filter(l => l.trim() !== "");
                 
@@ -264,11 +278,11 @@
                 
                 showQuestion();
             } catch (e) {
-                alert("Không thể tải file game. Hãy kiểm tra lại đường dẫn GitHub!");
+                alert("Lỗi: Không tìm thấy file game trong thư mục " + type);
             }
         }
 
-        // 3. Hiển thị câu hỏi
+        // 4. Hiển thị câu hỏi theo từng loại game
         function showQuestion() {
             const content = document.getElementById('quiz-content');
             const feedback = document.getElementById('feedback-area');
@@ -286,8 +300,7 @@
             const data = currentGameData[currentIdx];
 
             if (currentType === "4Answer") {
-                const qText = data[0];
-                content.innerHTML = `<h3>${qText}</h3>`;
+                content.innerHTML = `<h3>${data[0]}</h3>`;
                 for (let i = 1; i <= 4; i++) {
                     const btn = document.createElement('button');
                     btn.className = 'ans-btn';
@@ -298,8 +311,13 @@
             } 
             else if (currentType === "WAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
-                    <input type="text" id="w-input" placeholder="Nhập câu trả lời...">
-                    <button class="btn-next" style="display:block; margin: 20px auto;" onclick="checkWAnswer('${data[1]}')">Gửi</button>`;
+                    <input type="text" id="w-input" placeholder="Viết câu trả lời tại đây..." autofocus>
+                    <button class="btn-next" style="display:block; margin: 20px auto;" onclick="processWAnswer('${data[1]}')">Gửi đáp án</button>`;
+                
+                // Hỗ trợ ấn Enter để gửi
+                document.getElementById('w-input').addEventListener("keypress", function(e) {
+                    if (e.key === "Enter") processWAnswer(data[1]);
+                });
             }
             else if (currentType === "TFAnswer") {
                 content.innerHTML = `<h3>${data[0]}</h3>
@@ -308,31 +326,33 @@
             }
         }
 
-        // 4. Kiểm tra đáp án
+        function processWAnswer(correct) {
+            const val = document.getElementById('w-input').value;
+            checkAnswer(val, correct);
+        }
+
+        // 5. Kiểm tra đúng/sai và xử lý hiệu ứng tiếp theo
         function checkAnswer(userAns, corectAns) {
             const feedback = document.getElementById('feedback-area');
             const nextBtn = document.getElementById('next-btn');
             
-            // Chặn bấm nhiều lần
             const buttons = document.querySelectorAll('.ans-btn');
             buttons.forEach(b => b.style.pointerEvents = 'none');
 
-            if (userAns.toString().trim().toLowerCase() === corectAns.toString().trim().toLowerCase()) {
+            const isCorrect = userAns.toString().trim().toLowerCase() === corectAns.toString().trim().toLowerCase();
+
+            if (isCorrect) {
                 score++;
                 feedback.innerHTML = "✅ CHÍNH XÁC!";
-                feedback.style.color = "green";
-                setTimeout(nextQuestion, 1000); // Đúng thì qua luôn sau 1s
+                feedback.style.color = "#27ae60";
+                feedback.style.display = "block";
+                setTimeout(nextQuestion, 1200); 
             } else {
-                feedback.innerHTML = `❌ SAI RỒI! Đáp án đúng là: <b>${corectAns}</b>`;
-                feedback.style.color = "red";
-                nextBtn.style.display = "inline-block"; // Sai thì phải ấn Tiếp tục
+                feedback.innerHTML = `❌ SAI RỒI!<br>Đáp án đúng là: <span style="color:var(--primary-color)">${corectAns}</span>`;
+                feedback.style.color = "#e74c3c";
+                feedback.style.display = "block";
+                nextBtn.style.display = "inline-block"; 
             }
-            feedback.style.display = "block";
-        }
-
-        function checkWAnswer(correct) {
-            const val = document.getElementById('w-input').value;
-            checkAnswer(val.toLowerCase(), correct.toLowerCase());
         }
 
         function nextQuestion() {
@@ -340,17 +360,19 @@
             showQuestion();
         }
 
+        // 6. Màn hình kết thúc
         function endGame() {
             const content = document.getElementById('quiz-content');
-            content.innerHTML = `<h2>Trò chơi kết thúc!</h2>
-                <h1 style="color:var(--primary-color)">${score}/${currentGameData.length}</h1>
-                <button class="btn-next" onclick="location.reload()">Quay về sảnh</button>`;
+            content.innerHTML = `<h2>Trò chơi hoàn tất!</h2>
+                <div style="font-size: 4rem; margin: 20px 0; color:var(--primary-color)">${score}/${currentGameData.length}</div>
+                <p>Bạn đã hoàn thành tất cả các câu hỏi.</p>
+                <button class="btn-next" style="background:var(--primary-color); margin-top:30px;" onclick="location.reload()">Quay về sảnh</button>`;
             document.getElementById('q-title').innerText = "KẾT QUẢ";
             document.getElementById('q-rules').innerText = "";
         }
 
-        // Khởi tạo
-        renderLobby();
+        // Chạy ứng dụng
+        fetchGameList();
     </script>
 </body>
 </html>
