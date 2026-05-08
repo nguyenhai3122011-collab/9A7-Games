@@ -44,13 +44,17 @@
         }
 
         .game-card {
-            background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px;
+            background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px 20px;
             text-align: center; cursor: pointer; transition: 0.3s;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; flex-direction: column; gap: 8px;
         }
 
         .game-card:hover { transform: translateY(-5px); border-color: var(--accent-color); background: rgba(255, 255, 255, 0.1); }
-        .game-card h3 { color: var(--secondary-color); margin-bottom: 8px; }
+        
+        .game-card .game-name { color: var(--accent-color); font-size: 1.4rem; font-weight: bold; text-transform: uppercase; }
+        .game-card .game-id { color: #888; font-size: 0.9rem; font-family: monospace; }
+        .game-card .game-type { color: var(--secondary-color); font-weight: 500; font-style: italic; }
 
         /* Giao diện chơi game */
         #game-screen {
@@ -134,27 +138,25 @@
                 const text = await response.text();
                 const lines = text.split('\n').filter(l => l.trim() !== "");
                 
+                // Lưu trữ dữ liệu thô (có cả tên game nếu có sau này)
                 gameFiles = lines.map(line => {
                     const parts = line.split('|');
                     return { id: parts[0] ? parts[0].trim() : "", type: parts[1] ? parts[1].trim() : "" };
                 }).filter(g => g.id !== "");
 
                 renderLobby();
-                checkDeepLink(); // Kiểm tra link ngay sau khi tải xong danh sách
+                checkDeepLink();
             } catch (e) {
                 document.getElementById('gameGrid').innerHTML = "<p>Lỗi tải danh sách game.</p>";
             }
         }
 
-        // Kiểm tra link dạng .../index.html#ID78939281
         function checkDeepLink() {
             const hash = window.location.hash;
             if (hash && hash.startsWith("#ID")) {
-                const targetId = hash.substring(3); // Lấy phần sau #ID
+                const targetId = hash.substring(3);
                 const game = gameFiles.find(g => g.id.replace('.txt','') === targetId);
-                if (game) {
-                    loadGame(game.type, game.id);
-                }
+                if (game) loadGame(game.type, game.id);
             }
         }
 
@@ -165,21 +167,28 @@
 
             for (let i = gameFiles.length - 1; i >= 0; i--) {
                 const game = gameFiles[i];
-                const gameId = game.id.toLowerCase();
-                const isHidden = gameId.includes("hide");
+                const rawId = game.id.replace('.txt','');
+                const gameIdSearch = rawId.toLowerCase();
+                const isHidden = gameIdSearch.includes("hide");
                 
                 if (isHidden) {
-                    if (search === "" || !gameId.includes(search)) continue;
+                    if (search === "" || !gameIdSearch.includes(search)) continue;
                 } else {
-                    if (search !== "" && !gameId.includes(search)) continue;
+                    if (search !== "" && !gameIdSearch.includes(search)) continue;
                 }
 
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.innerHTML = `<h3>${game.id.replace('.txt','')}</h3><p>Loại: ${typeNames[game.type] || game.type}</p>`;
+                
+                // Hiển thị theo định dạng: Tên | ID | Thể loại
+                card.innerHTML = `
+                    <div class="game-name">${rawId}</div>
+                    <div class="game-id">ID: ${rawId}</div>
+                    <div class="game-type">${typeNames[game.type] || game.type}</div>
+                `;
+                
                 card.onclick = () => {
-                    // Cập nhật hash trên URL khi bấm vào card
-                    window.location.hash = "ID" + game.id.replace('.txt','');
+                    window.location.hash = "ID" + rawId;
                     loadGame(game.type, game.id);
                 };
                 grid.appendChild(card);
@@ -208,7 +217,7 @@
             if (confirm("Bạn có chắc muốn thoát trò chơi hiện tại?")) {
                 document.getElementById('game-screen').style.display = 'none';
                 document.getElementById('lobby').style.display = 'block';
-                window.location.hash = ""; // Xóa hash trên URL
+                window.location.hash = "";
             }
         }
 
