@@ -1,0 +1,12 @@
+Toán học lớp 9
+Chọn đáp án Đúng hoặc Sai
+Nếu delta nhỏ hơn 0 thì phương trình bậc hai vô nghiệm | T
+Nếu delta bằng 0 thì phương trình có 2 nghiệm phân biệt | F
+Nếu delta lớn hơn 0 thì phương trình có 2 nghiệm phân biệt | T
+Căn bậc hai số học của một số thực a không âm là một số không âm | T
+Trong một đường tròn, góc nội tiếp chắn nửa đường tròn là góc vuông | T
+Tứ giác có tổng hai góc đối bằng 180 độ là tứ giác nội tiếp | T
+Nếu a + b + c = 0 thì phương trình ax^2 + bx + c = 0 có một nghiệm là 1 | T
+Nếu a - b + c = 0 thì phương trình ax^2 + bx + c = 0 có một nghiệm là 1 | F
+Đường thẳng tiếp xúc với đường tròn tại một điểm gọi là tiếp tuyến | T
+Đồ thị hàm số y = ax^2 luôn đi qua gốc tọa độ O(0,0) | T
