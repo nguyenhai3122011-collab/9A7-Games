@@ -1,0 +1,17 @@
+English Master Challenge
+Luật chơi: Người chơi đọc câu hỏi và chọn một trong bốn đáp án. Mỗi câu hỏi có một số hiệu đáp án đúng (từ 1 đến 4) nằm ở cuối dòng, ngăn cách bởi dấu "|".
+Từ nào sau đây là danh từ chỉ nghề nghiệp? | Beautiful | Slowly | Engineer | Study | 3
+Chia động từ trong ngoặc: She (go) ______ to school every day. | go | goes | going | went | 2
+Từ nào có nghĩa là "Quả táo" trong Tiếng Anh? | Banana | Orange | Apple | Grape | 3
+Chọn từ trái nghĩa với từ "Hot"? | Cold | Warm | Sunny | Dry | 1
+Câu nào sau đây dùng để chào hỏi vào buổi sáng? | Good night | Good afternoon | Good morning | Good evening | 3
+Đâu là dạng quá khứ của động từ "Eat"? | Eated | Eating | Ate | Eats | 3
+Từ nào sau đây không cùng nhóm với các từ còn lại? | Red | Blue | Yellow | Dog | 4
+"I am ________ a book now." - Chọn từ phù hợp để điền vào chỗ trống. | read | reads | reading | red | 3
+Từ "Library" trong Tiếng Anh có nghĩa là gì? | Công viên | Thư viện | Nhà sách | Trường học | 2
+Chọn đại từ nhân xưng phù hợp: "_____ am a student." | He | She | It | I | 4
+Thứ hai trong Tiếng Anh được viết là gì? | Tuesday | Monday | Sunday | Friday | 2
+Từ nào sau đây là tính từ? | Happiness | Happy | Happily | Happen | 2
+Số "15" trong Tiếng Anh đọc là gì? | Fifty | Fifteen | Five | Fifth | 2
+"How ______ are you?" - "I'm 15 years old." | old | tall | long | high | 1
+Động từ "To Be" đi với chủ ngữ "They" ở thì hiện tại là gì? | am | is | are | be | 3
