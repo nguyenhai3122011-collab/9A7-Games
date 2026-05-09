@@ -1,0 +1,17 @@
+Thử thách Game Thủ
+Luật chơi: Người chơi đọc câu hỏi và chọn một trong bốn đáp án. Mỗi câu hỏi có một số hiệu đáp án đúng (từ 1 đến 4) nằm ở cuối dòng.
+Nhân vật Mario trong dòng game cùng tên ban đầu có nghề nghiệp là gì? | Thợ sửa ống nước | Thợ mộc | Bác sĩ | Đầu bếp | 2
+Tựa game nào được coi là trò chơi điện tử đầu tiên trên thế giới? | Pong | Tetris | Space Invaders | Tennis for Two | 4
+Trong game Minecraft, loại quái vật nào sẽ phát nổ khi lại gần người chơi? | Zombie | Skeleton | Creeper | Enderman | 3
+Hãng game nào là cha đẻ của dòng máy PlayStation? | Nintendo | Sega | Microsoft | Sony | 4
+Tựa game "Liên Minh Huyền Thoại" (League of Legends) thuộc thể loại nào? | FPS | MOBA | RPG | RTS | 2
+Nhân vật chính trong dòng game "The Legend of Zelda" tên là gì? | Zelda | Link | Ganon | Mario | 2
+Trong game "Pokémon", hệ nào khắc hệ Lửa? | Hệ Cỏ | Hệ Điện | Hệ Nước | Hệ Tâm linh | 3
+Tựa game sinh tồn nào cho phép 100 người chơi nhảy dù xuống một hòn đảo để chiến đấu? | PUBG | Candy Crush | FIFA | The Sims | 1
+Công ty nào đã tạo ra trò chơi xếp gạch nổi tiếng "Tetris"? | Mỹ | Nhật Bản | Liên Xô | Pháp | 3
+Nhân vật Lara Croft là nhân vật chính của dòng game nào? | Uncharted | Tomb Raider | Resident Evil | Silent Hill | 2
+Đâu là tên của chú nhím xanh chạy nhanh nhất thế giới của hãng Sega? | Tails | Knuckles | Sonic | Shadow | 3
+Trong dòng game "Grand Theft Auto" (GTA), bối cảnh thành phố Los Santos được dựa trên thành phố thật nào? | New York | Los Angeles | Chicago | Miami | 2
+Máy chơi game cầm tay "Game Boy" là sản phẩm của công ty nào? | Nintendo | Sony | Casio | Apple | 1
+Tựa game "Genshin Impact" được phát triển bởi công ty nào? | Tencent | Garena | miHoYo | Capcom | 3
+Trong game "Among Us", những người đi phá hoại và sát hại phi hành đoàn được gọi là gì? | Ghost | Impostor | Crewmate | Traitor | 2
