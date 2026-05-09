@@ -2,3 +2,6 @@
 12345678.txt | TFAnswer
 97366769.txt | WAnswer
 HIDE03122011.txt | 4Answer
+58291043.txt | 4Answer
+74109582.txt | 4Answer
+29384756.txt | 4Answer
