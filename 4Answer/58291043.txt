@@ -1,0 +1,17 @@
+Thử thách Kiến thức Âm nhạc
+Luật chơi: Người chơi đọc câu hỏi và chọn một trong bốn đáp án. Mỗi câu hỏi có một số hiệu đáp án đúng (từ 1 đến 4) nằm ở cuối dòng.
+Nhạc cụ nào được mệnh danh là "Vua của các loại nhạc cụ"? | Đàn Guitar | Đàn Piano | Đàn Violin | Đàn Organ | 2
+Dòng nhạc Jazz có nguồn gốc từ cộng đồng nào? | Cộng đồng người Mỹ gốc Phi | Cộng đồng người Anh | Cộng đồng người Pháp | Cộng đồng người Tây Ban Nha | 1
+Ai là tác giả của bản giao hưởng nổi tiếng "Định mệnh" (Symphony No. 5)? | Mozart | Chopin | Beethoven | Bach | 3
+Nhạc cụ nào sau đây thuộc bộ hơi? | Đàn Tranh | Trống | Sáo Flute | Đàn Bầu | 3
+Một quãng tám (Octave) trong âm nhạc gồm bao nhiêu nốt nhạc cơ bản? | 5 nốt | 7 nốt | 8 nốt | 12 nốt | 2
+Dòng nhạc Rock 'n' Roll bắt đầu trở nên phổ biến từ thập kỷ nào? | Thập kỷ 1930 | Thập kỷ 1950 | Thập kỷ 1970 | Thập kỷ 1990 | 2
+Nữ ca sĩ nào được mệnh danh là "Họa mi tóc nâu" của Việt Nam? | Hồ Ngọc Hà | Lệ Quyên | Mỹ Tâm | Hiền Thục | 3
+Đàn bầu của Việt Nam có bao nhiêu dây? | 1 dây | 2 dây | 3 dây | 4 dây | 1
+Quốc gia nào là quê hương của điệu nhảy Flamenco quyến rũ? | Ý | Brazil | Tây Ban Nha | Argentina | 3
+K-Pop là thuật ngữ dùng để chỉ nền âm nhạc của quốc gia nào? | Nhật Bản | Hàn Quốc | Trung Quốc | Thái Lan | 2
+Nhạc sĩ Trịnh Công Sơn nổi tiếng với dòng nhạc nào? | Nhạc Rock | Nhạc EDM | Nhạc Vàng | Nhạc Trịnh | 4
+Nốt nhạc nằm giữa nốt Đồ (Do) và nốt Mi (Mi) là nốt gì? | Pha (Fa) | Rê (Re) | Sol (Sol) | La (La) | 2
+Thể loại nhạc nào thường sử dụng bàn xoay (turntables) và kỹ thuật scratching? | Nhạc Cổ điển | Nhạc Jazz | Nhạc Hip-hop | Nhạc Country | 3
+Lễ hội âm nhạc Coachella được tổ chức hàng năm tại quốc gia nào? | Anh | Pháp | Mỹ | Úc | 3
+Nốt tròn (Whole note) có độ dài bằng bao nhiêu nốt đen? | 2 nốt đen | 3 nốt đen | 4 nốt đen | 8 nốt đen | 3
